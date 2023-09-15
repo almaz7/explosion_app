@@ -39,8 +39,11 @@ def get_all_fb_handler(query: types.CallbackQuery):
 
 @bot.callback_query_handler(lambda query: query.data.startswith('answer_fb:'))
 def handle_with_feedback(query: types.CallbackQuery):
-    feedback_id = int(query.data.split(':')[1])
-    feedback = get_feedback_row(feedback_id)
+    try:
+        feedback_id = int(query.data.split(':')[1])
+        feedback = get_feedback_row(feedback_id)
+    except Exception:
+        feedback = None
 
     if feedback is None:
         bot.send_message(query.message.chat.id, "Данное обращение отсутствует.")
@@ -59,9 +62,12 @@ def handle_with_feedback(query: types.CallbackQuery):
 
 @bot.callback_query_handler(lambda query: query.data.startswith('change_feedback_status:'))
 def handle_with_feedback(query: types.CallbackQuery):
-    feedback_id = int(query.data.split(':')[2])
-    page = int(query.data.split(':')[1])
-    feedback = get_feedback_row(feedback_id)
+    try:
+        feedback_id = int(query.data.split(':')[2])
+        page = int(query.data.split(':')[1])
+        feedback = get_feedback_row(feedback_id)
+    except Exception:
+        feedback = None
 
     if feedback is None:
         bot.send_message(query.message.chat.id, "Данное обращение отсутствует.")
@@ -78,9 +84,12 @@ def handle_with_feedback(query: types.CallbackQuery):
 @bot.callback_query_handler(lambda query: query.data.startswith('change_fb_st:'))
 def handle_status_changing(query: types.CallbackQuery):
     new_status, fb_type, page, feedback_id = query.data.split(':')[1:]
-    page = int(page)
-    feedback_id = int(feedback_id)
-    feedback = get_feedback_row(feedback_id)
+    try:
+        page = int(page)
+        feedback_id = int(feedback_id)
+        feedback = get_feedback_row(feedback_id)
+    except Exception:
+        feedback = None
 
     if feedback is None:
         bot.send_message(query.message.chat.id, "Данное обращение отсутствует.")
@@ -100,37 +109,48 @@ def handle_status_changing(query: types.CallbackQuery):
 
 @bot.callback_query_handler(lambda query: query.data.startswith('my_fb_pages:'))
 def handle_my_feedbacks_paging(query: types.CallbackQuery):
-    page = int(query.data.split(':')[1])
-    bot.delete_message(query.message.chat.id, query.message.message_id)
-    send_my_feedbacks_page(query.message, get_user_feedbacks(query.message.chat.id), page)
-
+    try:
+        page = int(query.data.split(':')[1])
+        bot.delete_message(query.message.chat.id, query.message.message_id)
+        send_my_feedbacks_page(query.message, get_user_feedbacks(query.message.chat.id), page)
+    except Exception:
+        bot.send_message(query.message.chat.id, "Произошла непредвиденная ошибка. Попробуйте повторить запрос")
 
 @bot.callback_query_handler(lambda query: query.data.startswith('delete_fb:'))
 def delete_feedback_handle(query: types.CallbackQuery):
-    feedback_id = int(query.data.split(':')[2])
-    fb_type = query.data.split(':')[1]
+    try:
+        feedback_id = int(query.data.split(':')[2])
+        fb_type = query.data.split(':')[1]
 
-    delete_feedback(feedback_id)
-    bot.delete_message(query.message.chat.id, query.message.message_id)
-    send_feedback_page(query.message, get_feedbacks(query.message, fb_type, True), fb_type)
+        delete_feedback(feedback_id)
+        bot.delete_message(query.message.chat.id, query.message.message_id)
+        send_feedback_page(query.message, get_feedbacks(query.message, fb_type, True), fb_type)
+    except Exception:
+        bot.send_message(query.message.chat.id, "Произошла непредвиденная ошибка. Попробуйте повторить запрос")
 
 
 @bot.callback_query_handler(lambda query: query.data.startswith('delete_my_fb:'))
 def delete_my_fb(query: types.CallbackQuery):
-    feedback_id = int(query.data.split(':')[1])
-    delete_feedback(feedback_id)
-    bot.delete_message(query.message.chat.id, query.message.message_id)
-    send_my_feedbacks_page(query.message, get_user_feedbacks(query.message.chat.id))
+    try:
+        feedback_id = int(query.data.split(':')[1])
+        delete_feedback(feedback_id)
+        bot.delete_message(query.message.chat.id, query.message.message_id)
+        send_my_feedbacks_page(query.message, get_user_feedbacks(query.message.chat.id))
+    except Exception:
+        bot.send_message(query.message.chat.id, "Произошла непредвиденная ошибка. Попробуйте повторить запрос")
 
 
 @bot.callback_query_handler(lambda query: query.data.startswith('fb_page:'))
 def feedback_page_callback(query: types.CallbackQuery):
     cb_args = query.data.split(':')
-    page = int(cb_args[2])
-    fb_type = cb_args[1]
+    try:
+        page = int(cb_args[2])
+        fb_type = cb_args[1]
 
-    bot.delete_message(query.message.chat.id, query.message.message_id)
-    send_feedback_page(query.message, get_feedbacks(query.message, fb_type, sort_by_new=True), fb_type, page)
+        bot.delete_message(query.message.chat.id, query.message.message_id)
+        send_feedback_page(query.message, get_feedbacks(query.message, fb_type, sort_by_new=True), fb_type, page)
+    except Exception:
+        bot.send_message(query.message.chat.id, "Произошла непредвиденная ошибка. Попробуйте повторить запрос")
 
 
 def get_feedback_text(message: types.Message):

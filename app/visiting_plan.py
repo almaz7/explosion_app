@@ -14,7 +14,11 @@ bot = config.bot
 
 @bot.callback_query_handler(lambda query: query.data.startswith('sch_filling:'))
 def train_plan_page_callback(query: types.CallbackQuery):
-    page = int(query.data.split(':')[1])
+    try:
+        page = int(query.data.split(':')[1])
+    except Exception:
+        bot.send_message(query.message.chat.id, "Произошла непредвиденная ошибка. Попробуйте повторить запрос")
+        return
     blank_dates = get_user_blank_days(query.message.chat.id,
                                       convert_weekdays_to_dates(train_schedule.get_schedule_weekday_numbers()))
 
@@ -24,7 +28,12 @@ def train_plan_page_callback(query: types.CallbackQuery):
 
 @bot.callback_query_handler(lambda query: query.data.startswith('sch_editing:'))
 def train_plan_edit_page_callback(query: types.CallbackQuery):
-    page = int(query.data.split(':')[1])
+    try:
+        page = int(query.data.split(':')[1])
+    except Exception:
+        bot.send_message(query.message.chat.id, "Произошла непредвиденная ошибка. Попробуйте повторить запрос")
+        return
+
     train_dates_to_edit = convert_weekdays_to_dates(train_schedule.get_schedule_weekday_numbers())
     bot.delete_message(query.message.chat.id, query.message.message_id)
     send_plan_edit_paging(query.message.chat.id, train_dates_to_edit, page)
@@ -45,8 +54,13 @@ def will_come_handler(query: types.CallbackQuery):
 @bot.callback_query_handler(lambda query: query.data.startswith('will_come_edit:') or
                                           query.data.startswith('will_late_edit:'))
 def will_come_edit_handler(query: types.CallbackQuery):
-    date = query.data.split(':')[1]
-    page = int(query.data.split(':')[2])
+    try:
+        date = query.data.split(':')[1]
+        page = int(query.data.split(':')[2])
+    except Exception:
+        bot.send_message(query.message.chat.id, "Произошла непредвиденная ошибка. Попробуйте повторить запрос")
+        return
+
     answer = 0 if query.data.startswith('will_come') else 1
     train_dates_to_fill = convert_weekdays_to_dates(train_schedule.get_schedule_weekday_numbers())
 
@@ -72,8 +86,13 @@ def edit_visit_plan_handler(query: types.CallbackQuery):
 
 @bot.callback_query_handler(lambda query: query.data.startswith('change_skip_reason:'))
 def change_skip_reason_handler(query: types.CallbackQuery):
-    date = query.data.split(':')[1]
-    page = int(query.data.split(':')[2])
+    try:
+        date = query.data.split(':')[1]
+        page = int(query.data.split(':')[2])
+    except Exception:
+        bot.send_message(query.message.chat.id, "Произошла непредвиденная ошибка. Попробуйте повторить запрос")
+        return
+
     bot.send_message(query.message.chat.id, "Укажите причину пропуска.")
     bot.register_next_step_handler(query.message, register_skip_reason(date, query, True, page))
 
@@ -81,8 +100,13 @@ def change_skip_reason_handler(query: types.CallbackQuery):
 @bot.callback_query_handler(lambda query: query.data.startswith('will_not_come:') or
                                           query.data.startswith('will_not_come_edit:'))
 def will_not_come_handler(query: types.CallbackQuery):
-    date = query.data.split(':')[1]
-    page = int(query.data.split(':')[2])
+    try:
+        date = query.data.split(':')[1]
+        page = int(query.data.split(':')[2])
+    except Exception:
+        bot.send_message(query.message.chat.id, "Произошла непредвиденная ошибка. Попробуйте повторить запрос")
+        return
+
     is_editing = query.data.startswith('will_not_come_edit:')
 
     bot.send_message(query.message.chat.id, "Укажите причину пропуска.")
@@ -196,7 +220,6 @@ def convert_weekdays_to_dates(weekday_numbers: list[int]) -> list[datetime.date]
             for day_delta in day_deltas:
                 day_date = current_date + datetime.timedelta(days=day_delta + 7)
                 result.append(day_date)
-
         return result
     else:
         print("weekday_numbers is empty!")

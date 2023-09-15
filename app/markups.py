@@ -172,11 +172,13 @@ def edit_schedule_options(day):
 
 def my_feedback_pages(my_feedbacks, page: int):
     paginator = InlineKeyboardPaginator(len(my_feedbacks), page, 'my_fb_pages:{page}')
-    current_feedback_id = int(my_feedbacks[page - 1][0])
+    try:
+        current_feedback_id = int(my_feedbacks[page - 1][0])
 
-    paginator.add_before(types.InlineKeyboardButton(string_constants.DELETE_FEEDBACK,
-                                                    callback_data=f"delete_my_fb:{current_feedback_id}"))
-
+        paginator.add_before(types.InlineKeyboardButton(string_constants.DELETE_FEEDBACK,
+                                                        callback_data=f"delete_my_fb:{current_feedback_id}"))
+    except Exception:
+        return
     return paginator.markup
 
 

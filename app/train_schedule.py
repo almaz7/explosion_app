@@ -18,14 +18,21 @@ def handle_schedule_options(query: types.CallbackQuery):
 
 @bot.callback_query_handler(lambda query: query.data.startswith('set_train:') or query.data.startswith('set_new_time:'))
 def set_new_train_handler(query: types.CallbackQuery):
-    day_number = int(query.data.split(':')[1])
+    try:
+        day_number = int(query.data.split(':')[1])
+    except Exception:
+        bot.send_message(query.message.chat.id, "Произошла непредвиденная ошибка. Попробуйте повторить запрос")
+        return
     bot.send_message(query.message.chat.id, "Установите время тренировки")
     bot.register_next_step_handler(query.message, set_train_time(day_number, query))
 
-
 @bot.callback_query_handler(lambda query: query.data.startswith('delete_train:'))
 def delete_train_time(query: types.CallbackQuery):
-    day_number = int(query.data.split(':')[1])
+    try:
+        day_number = int(query.data.split(':')[1])
+    except Exception:
+        bot.send_message(query.message.chat.id, "Произошла непредвиденная ошибка. Попробуйте повторить запрос")
+        return
     _, train_time, day_name = get_schedule_day(day_number)
 
     if train_time is None:
@@ -38,7 +45,11 @@ def delete_train_time(query: types.CallbackQuery):
 
 @bot.callback_query_handler(lambda query: query.data.startswith('sch_page:'))
 def edit_paging_handler(query: types.CallbackQuery):
-    page = int(query.data.split(':')[1])
+    try:
+        page = int(query.data.split(':')[1])
+    except Exception:
+        bot.send_message(query.message.chat.id, "Произошла непредвиденная ошибка. Попробуйте повторить запрос")
+        return
     bot.delete_message(query.message.chat.id, query.message.message_id)
     send_schedule_page(query.message, get_full_schedule(), page)
 

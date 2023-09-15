@@ -43,9 +43,14 @@ def send_list_of_people(message: types.Message, date: str):
 
 @bot.callback_query_handler(lambda query: query.data.startswith('is_here:') or query.data.startswith('not_here:'))
 def query_fact_visiting(query: types.CallbackQuery):
-    user_id = int(query.data.split(':')[1])
-    date = query.data.split(':')[2]
-    change_status = int(query.data.split(':')[3])
+    try:
+        user_id = int(query.data.split(':')[1])
+        date = query.data.split(':')[2]
+        change_status = int(query.data.split(':')[3])
+    except Exception:
+        bot.send_message(query.message.chat.id, "Произошла непредвиденная ошибка. Попробуйте повторить запрос")
+        return
+
     answer = 0 if query.data.startswith('is_here') else 1
     if date == datetime.datetime.today().date().strftime("%d-%m-%Y"):
         if not check_note_already(user_id, date):
@@ -73,10 +78,14 @@ def query_change_look_fact_visiting(query: types.CallbackQuery):
 
 @bot.callback_query_handler(lambda query: query.data.startswith('change_visit_fact:'))
 def query_change_visit_fact(query: types.CallbackQuery):
-    user_id = int(query.data.split(':')[1])
-    date = query.data.split(':')[2]
-    row = get_fact_by_date_and_id(user_id, date)
+    try:
+        user_id = int(query.data.split(':')[1])
+        date = query.data.split(':')[2]
+    except Exception:
+        bot.send_message(query.message.chat.id, "Произошла непредвиденная ошибка. Попробуйте повторить запрос")
+        return
 
+    row = get_fact_by_date_and_id(user_id, date)
     user = users.get_user(user_id)
     firstname = user[1]
     lastname = user[2]

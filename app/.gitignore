@@ -2,3 +2,4 @@ config.py
 exp_bot_db.db
 .idea
 venv
+*.xlsx

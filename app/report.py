@@ -71,18 +71,23 @@ def make_all_sheet1(message: types.Message, date_str: str, ws: Workbook.workshee
     ws.column_dimensions["B"].width = 25
     i = 2
     j = 1
-    active_users = users.get_active_users()
+    active_users = users.get_active_users_sorted_inBase()
     if not active_users:
         bot.send_message(message.chat.id, "В базе данных нет активных пользователей",
                          reply_markup=markups.main_markup(message))
         return
+    ws.cell(row=1, column=3, value="Группа")
     for user in active_users:
         name = user[2] + " " + user[1]
         ws.cell(row=i, column=j, value=i - 1)
         ws.cell(row=i, column=j + 1, value=name)
+        ws.cell(row=i, column=j + 2, value=user[8])
+        if user[9] == 1:
+            ws.cell(row=i, column=j + 1).fill = PatternFill('solid', fgColor="63C5DA")
+            ws.cell(row=i, column=j + 2).fill = PatternFill('solid', fgColor="63C5DA")
         i += 1
 
-    j = 3
+    j = 4
     while date < current_date:
         rows = visiting_fact.get_visit_fact_row(date.strftime("%d-%m-%Y"))
         if not rows:
@@ -136,9 +141,11 @@ def make_all_sheet1(message: types.Message, date_str: str, ws: Workbook.workshee
     s1 = "Зелёный фон: был на занятии"
     s2 = "Жёлтый фон: отсутствие с причиной"
     s3 = "Красный фон: отсутствие без причины"
+    s4 = "Голубой фон: в основном составе"
     ws.cell(row=i, column=2, value=s1).font = Font(color="50C878")
     ws.cell(row=i + 1, column=2, value=s2).font = Font(color="F4CA16")
     ws.cell(row=i + 2, column=2, value=s3).font = Font(color="D7002F")
+    ws.cell(row=i + 3, column=2, value=s4).font = Font(color="63C5DA")
 
 
 def make_all_sheet2(message: types.Message, date_str: str, ws: Workbook.worksheets):
@@ -149,7 +156,7 @@ def make_all_sheet2(message: types.Message, date_str: str, ws: Workbook.workshee
     ws.column_dimensions["B"].width = 25
     i = 2
     j = 1
-    active_users = users.get_active_users()
+    active_users = users.get_active_users_sorted_inBase()
     if not active_users:
         bot.send_message(message.chat.id, "В базе данных нет активных пользователей",
                          reply_markup=markups.main_markup(message))
@@ -365,7 +372,7 @@ def get_plan_report(message: types.Message):
     ws.column_dimensions["B"].width = 25
     i = 2
     j = 1
-    active_users = users.get_active_users()
+    active_users = users.get_active_users_sorted_inBase()
     if not active_users:
         bot.send_message(message.chat.id, "В базе данных нет активных пользователей",
                          reply_markup=markups.main_markup(message))
@@ -374,6 +381,8 @@ def get_plan_report(message: types.Message):
         name = user[2] + " " + user[1]
         ws.cell(row=i, column=j, value=i - 1)
         ws.cell(row=i, column=j + 1, value=name)
+        if user[9] == 1:
+            ws.cell(row=i, column=j + 1).fill = PatternFill('solid', fgColor="63C5DA")
         i += 1
 
     j = 3
@@ -415,9 +424,11 @@ def get_plan_report(message: types.Message):
     s1 = "Зелёный фон: будет на занятии"
     s2 = "Жёлтый фон: отсутствие с причиной"
     s3 = "Красный фон: план не заполнен"
+    s4 = "Голубой фон: в основном составе"
     ws.cell(row=i, column=2, value=s1).font = Font(color="50C878")
-    ws.cell(row=i+1, column=2, value=s2).font = Font(color="F4CA16")
-    ws.cell(row=i+2, column=2, value=s3).font = Font(color="D7002F")
+    ws.cell(row=i + 1, column=2, value=s2).font = Font(color="F4CA16")
+    ws.cell(row=i + 2, column=2, value=s3).font = Font(color="D7002F")
+    ws.cell(row=i + 3, column=2, value=s4).font = Font(color="63C5DA")
 
     wb.save("plan_report.xlsx")
     bot.send_message(message.chat.id, string_constants.GET_PLAN_REPORT + ":",
