@@ -1,5 +1,4 @@
 import telebot.apihelper
-
 import config
 from datetime import datetime
 from telebot import types
@@ -115,6 +114,7 @@ def handle_my_feedbacks_paging(query: types.CallbackQuery):
         send_my_feedbacks_page(query.message, get_user_feedbacks(query.message.chat.id), page)
     except Exception:
         bot.send_message(query.message.chat.id, "Произошла непредвиденная ошибка. Попробуйте повторить запрос")
+
 
 @bot.callback_query_handler(lambda query: query.data.startswith('delete_fb:'))
 def delete_feedback_handle(query: types.CallbackQuery):
