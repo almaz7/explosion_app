@@ -12,6 +12,8 @@ import visiting_fact
 import datetime
 import schedule
 import threading
+import traceback
+import sys
 
 bot = config.bot
 
@@ -120,8 +122,14 @@ def run_scheduling():
 
 
 def bot_running():
-    print("Bot is running")
-    bot.polling(none_stop=True)
+    while True:
+        try:
+            print("Bot is running")
+            bot.polling(none_stop=True)
+        except Exception:
+            print("Error! Time = " + str(datetime.datetime.now()) +"\n", file=sys.stderr)
+            traceback.print_exc()
+            time.sleep(5)
 
 
 schedule_stop = threading.Event()
